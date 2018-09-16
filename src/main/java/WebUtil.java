@@ -1,8 +1,14 @@
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.TextChannel;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 public class WebUtil {
 
@@ -32,5 +38,26 @@ public class WebUtil {
         in.close();
 
         return sb.toString();
+    }
+    public static String getApi(Member member, TextChannel channel, String url){
+        String json;
+        try{
+            json = WebUtil.getWebPage(url);
+        }
+        catch (IOException e){
+            MessageFactory.createStandardMessage(member, "#BlameDarkEyeDragon")
+                    .setDescription("Could not contact DarkEyeDragon's API.")
+                    .queue(channel);
+            return null;
+        }
+        return json;
+    }
+    public static String urlenc(String str){
+        try {
+            str = URLEncoder.encode(str, StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return str;
     }
 }
