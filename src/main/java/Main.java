@@ -4,6 +4,7 @@ import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.security.auth.login.LoginException;
@@ -85,6 +86,33 @@ public class Main extends ListenerAdapter
                 } else {
                     MessageFactory.createStandardMessage(member, ":x: Derp")
                             .setDescription("Usage: .submit <quote to submit>.")
+                            .queue(channel);
+                }
+            }
+            else if(command[0].equalsIgnoreCase(".quotes")){
+                if (channel.getName().equalsIgnoreCase("bot-commands")){
+                    String json;
+                    try {
+                        json = WebUtil.getWebPage("https://api.darkeyedragon.me/quotes/getAll.php");
+                    } catch (IOException e) {
+                        MessageFactory.createStandardMessage(member, "#BlameDarkEyeDragon")
+                                .setDescription("Could not contact DarkEyeDragon's API.")
+                                .queue(channel);
+                        return;
+                    }
+                    JSONArray response = new JSONArray(json);
+                    StringBuilder quotes = new StringBuilder();
+                    for (int i = 0; i < response.length(); i++){
+                        JSONObject object = response.getJSONObject(i);
+                        quotes.append("`"+object.getInt("id")+"`. `\""+object.getString("quote")+"\"` - "+object.getString("user_id")+"\n");
+                    }
+                    MessageFactory.createStandardMessage(member, "Codevision quotes")
+                            .setDescription(quotes.toString())
+                            .queue(channel);
+                }
+                else{
+                    MessageFactory.createStandardMessage(member,"Please no")
+                            .setDescription("Spare us the spam, move to #bot-commands")
                             .queue(channel);
                 }
             }
