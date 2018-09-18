@@ -22,13 +22,10 @@ public class WebUtil {
 
     public static String getWebPage(HttpURLConnection conn) throws IOException {
         StringBuilder sb = new StringBuilder();
-        conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36");
-        conn.setRequestProperty("Referer", "http://www.google.com");
+        conn.setRequestProperty("User-Agent", "InspireMe/1.3");
 
         int response = conn.getResponseCode();
-        if (response == 403) {
-            System.out.println("DEBUG: response code: 403");
-        } else if (response != 200) {
+        if (response != 200) {
             System.out.println("DEBUG: Response code: " + response);
         }
 

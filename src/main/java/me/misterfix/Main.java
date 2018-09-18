@@ -14,11 +14,13 @@ import javax.security.auth.login.LoginException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public class Main extends ListenerAdapter {
+    private static JDA jda;
     public static void main(String[] args) throws LoginException, InterruptedException {
-        JDA jda = new JDABuilder(AccountType.BOT)
-                .setGame(Game.of(Game.GameType.DEFAULT, "with DarkEyeDragon"))
+        jda = new JDABuilder(AccountType.BOT)
+                .setGame(Game.of(Game.GameType.WATCHING, "kids argue over their favorite programming language on the internet"))
                 .setToken("")
                 .setAutoReconnect(true)
                 .setAudioEnabled(false)
@@ -27,6 +29,12 @@ public class Main extends ListenerAdapter {
                 .build()
                 .awaitReady();
         jda.addEventListener(new Main());
+    }
+
+    private static String getEmote(String name) {
+        Guild guild = jda.getGuildsByName("Codevision", false).get(0);
+        List<Emote> emotes = guild.getEmotesByName(name, false);
+        return emotes.get(0).getAsMention();
     }
 
     @Override
@@ -54,7 +62,7 @@ public class Main extends ListenerAdapter {
                                 .setDescription("\"" + jsonObject.getString("quote") + "\"")
                                 .queue(channel);
                     } else {
-                        MessageFactory.createStandardMessage(member, "Whut :feelsChromosomeMan:")
+                        MessageFactory.createStandardMessage(member, "Whut " + getEmote("feelsChromosomeMan"))
                                 .setDescription("What are you trying to search for?\nUsage .quote search <pending> [search string]")
                                 .queue(channel);
                     }
@@ -67,7 +75,7 @@ public class Main extends ListenerAdapter {
                         String search = msgRaw.replace(".quote ", "").replace("search ", "").trim();
                         if (command[2].equalsIgnoreCase("pending")) {
                             if (command.length == 3) {
-                                MessageFactory.createStandardMessage(member, "Wait whut :robloxhead:")
+                                MessageFactory.createStandardMessage(member, "Wait whut " + getEmote("robloxhead"))
                                         .setDescription("What are you trying to search for?\nUsage .quote search <pending> [search string]")
                                         .queue(channel);
                             }
@@ -80,7 +88,7 @@ public class Main extends ListenerAdapter {
                         }
                         if (json == null) return;
                         if (json.contains("No quotes")) {
-                            MessageFactory.createStandardMessage(member, ":oof: nothing found")
+                            MessageFactory.createStandardMessage(member, getEmote("oof") + " nothing found")
                                     .setDescription("No search results" + (pending ? " in pending quotes." : "."))
                                     .queue(channel);
                             return;
@@ -124,7 +132,7 @@ public class Main extends ListenerAdapter {
                             System.out.println(member.getUser().getName()+"#"+member.getUser().getDiscriminator()+" Submitted a quote for review.");
                         }
                         else{
-                            MessageFactory.createStandardMessage(member, ":robloxhead: Oof")
+                            MessageFactory.createStandardMessage(member, getEmote("robloxhead") + " Oof")
                                     .setDescription("Something went wrong while trying to submit the quote #DarkEyeDragon")
                                     .queue(channel);
                             System.out.println(member.getUser().getName()+"#"+member.getUser().getDiscriminator()+" tried to submit a quote but something went wrong in the request.");
@@ -179,7 +187,7 @@ public class Main extends ListenerAdapter {
                                     "`quotes` - List all available quotes\n" +
                                     "`.quotes pending` - List all pending quotes\n" +
                                     "`.help` - Display this help page\n\n" +
-                                    "Made by Mister_Fix and FuckEyeDragon with <3")
+                                    "Made by Mister_Fix with <3")
                             .queue(channel);
                 }
                 else{
@@ -187,6 +195,11 @@ public class Main extends ListenerAdapter {
                             .setDescription("Spare us the spam, move to #bot-commands")
                             .queue(channel);
                 }
+            } else if (command[0].equalsIgnoreCase(".info")) {
+                MessageFactory.createStandardMessage(member, "InspireMe: info")
+                        .setDescription("Follow the development of this garbage at https://github.com/MuteVision/InspireMe\n" +
+                                "i dunno what else to put here.")
+                        .queue(channel);
             }
         }
     }
