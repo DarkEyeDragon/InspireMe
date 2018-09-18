@@ -1,6 +1,9 @@
+package me.misterfix;
+
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -15,10 +18,15 @@ import java.nio.charset.StandardCharsets;
 public class Main extends ListenerAdapter {
     public static void main(String[] args) throws LoginException, InterruptedException {
         JDA jda = new JDABuilder(AccountType.BOT)
+                .setGame(Game.of(Game.GameType.DEFAULT, "with DarkEyeDragon"))
                 .setToken("")
-                .addEventListener(new Main())
+                .setAutoReconnect(true)
+                .setAudioEnabled(false)
+                .setEnableShutdownHook(false)
+                .setStatus(OnlineStatus.ONLINE)
                 .build()
                 .awaitReady();
+        jda.addEventListener(new Main());
     }
 
     @Override
@@ -52,41 +60,46 @@ public class Main extends ListenerAdapter {
                     }
                 }
                 else if(command.length >= 3){
-                    String json;
-                    boolean pending = false;
-                    //yeah ik ik
-                    String search = msgRaw.replace(".quote ", "").replace("search ", "").trim();
-                    if(command[2].equalsIgnoreCase("pending")){
-                        if(command.length == 3){
-                            MessageFactory.createStandardMessage(member, "Wait whut :robloxhead:")
-                                    .setDescription("What are you trying to search for?\nUsage .quote search <pending> [search string]")
-                                    .queue(channel);
+                    if (channel.getName().equalsIgnoreCase("bot-commands")) {
+                        String json;
+                        boolean pending = false;
+                        //yeah ik ik
+                        String search = msgRaw.replace(".quote ", "").replace("search ", "").trim();
+                        if (command[2].equalsIgnoreCase("pending")) {
+                            if (command.length == 3) {
+                                MessageFactory.createStandardMessage(member, "Wait whut :robloxhead:")
+                                        .setDescription("What are you trying to search for?\nUsage .quote search <pending> [search string]")
+                                        .queue(channel);
+                            }
+                            //Don't worry i'm going to chemotherapy after this code
+                            search = search.replace("pending", "").replace("pending ", "").trim();
+                            json = WebUtil.getApi(member, channel, "https://api.darkeyedragon.me/quotes/getQuote.php?search=" + WebUtil.urlenc(search) + "&filter=pending");
+                            pending = true;
+                        } else {
+                            json = WebUtil.getApi(member, channel, "https://api.darkeyedragon.me/quotes/getQuote.php?search=" + WebUtil.urlenc(search));
                         }
-                        //Don't worry i'm going to chemotherapy after this code
-                        search = search.replace("pending", "").replace("pending ", "").trim();
-                        json = WebUtil.getApi(member, channel, "https://api.darkeyedragon.me/quotes/getQuote.php?search="+WebUtil.urlenc(search)+"&filter=pending");
-                        pending = true;
-                    }
-                    else {
-                        json = WebUtil.getApi(member, channel, "https://api.darkeyedragon.me/quotes/getQuote.php?search="+WebUtil.urlenc(search));
-                    }
-                    if(json==null) return;
-                    if (json.contains("No quotes")){
-                        MessageFactory.createStandardMessage(member, ":oof: nothing found")
-                                .setDescription("No search results"+(pending?" in pending quotes.":"."))
+                        if (json == null) return;
+                        if (json.contains("No quotes")) {
+                            MessageFactory.createStandardMessage(member, ":oof: nothing found")
+                                    .setDescription("No search results" + (pending ? " in pending quotes." : "."))
+                                    .queue(channel);
+                            return;
+                        }
+                        JSONArray response = new JSONArray(json);
+                        StringBuilder quotes = new StringBuilder();
+                        for (int i = 0; i < response.length(); i++) {
+                            JSONObject object = response.getJSONObject(i);
+                            quotes.append("`" + object.getInt("id") + "`. `\"" + object.getString("quote") + "\"` - " + object.getString("user_id") + "\n");
+                        }
+                        MessageFactory.createStandardMessage(member, "Quote search results" + (pending ? " (Pending)" : ""))
+                                .setDescription(quotes.toString())
                                 .queue(channel);
-                        return;
                     }
-                    JSONArray response = new JSONArray(json);
-                    StringBuilder quotes = new StringBuilder();
-                    for (int i = 0; i < response.length(); i++){
-                        JSONObject object = response.getJSONObject(i);
-                        quotes.append("`"+object.getInt("id")+"`. `\""+object.getString("quote")+"\"` - "+object.getString("user_id")+"\n");
+                    else{
+                        MessageFactory.createStandardMessage(member,"Please no")
+                                .setDescription("Spare us the spam, move to #bot-commands")
+                                .queue(channel);
                     }
-                    MessageFactory.createStandardMessage(member, "Quote search results"+(pending?" (Pending)":""))
-                            .setDescription(quotes.toString())
-                            .queue(channel);
-
                 }
             }
             else if (command[0].equalsIgnoreCase(".submit")){
@@ -155,8 +168,26 @@ public class Main extends ListenerAdapter {
                             .queue(channel);
                 }
             }
+            else if(command[0].equalsIgnoreCase(".help")){
+                if (channel.getName().equalsIgnoreCase("bot-commands")){
+                    MessageFactory.createStandardMessage(member, "InspireMe: Help")
+                            .setDescription("`.quote` - Get a random quote.\n" +
+                                    "`.quote <id>` - Get a quote by its ID.\n" +
+                                    "`.submit <text>` - Submit a quote for review.\n" +
+                                    "`.quote search <author>` - Search quotes by author name (name must not be exact)\n" +
+                                    "`.quote search pending <author>` - Search pending quotes by author\n" +
+                                    "`quotes` - List all available quotes\n" +
+                                    "`.quotes pending` - List all pending quotes\n" +
+                                    "`.help` - Display this help page\n\n" +
+                                    "Made by Mister_Fix and FuckEyeDragon with <3")
+                            .queue(channel);
+                }
+                else{
+                    MessageFactory.createStandardMessage(member,"Please no")
+                            .setDescription("Spare us the spam, move to #bot-commands")
+                            .queue(channel);
+                }
+            }
         }
     }
-    //Here used to be an event listener that would change the color of the self role to yellow
-    //but i'm stupid and java is a bitch.
 }

@@ -1,0 +1,3 @@
+Manifest-Version: 1.0
+me.misterfix.Main-Class: me.misterfix.Main
+
