@@ -12,22 +12,18 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-public class Main extends ListenerAdapter
-{
-    public static void main(String[] args)
-            throws LoginException, InterruptedException
-    {
+public class Main extends ListenerAdapter {
+    public static void main(String[] args) throws LoginException, InterruptedException {
         JDA jda = new JDABuilder(AccountType.BOT)
                 .setToken("")
+                .addEventListener(new Main())
                 .build()
                 .awaitReady();
-        jda.addEventListener(new Main());
     }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         String msgRaw = event.getMessage().getContentRaw();
-        Message message = event.getMessage();
         Member member = event.getMember();
         TextChannel channel = event.getTextChannel();
         if (msgRaw.startsWith(".")){
@@ -59,7 +55,7 @@ public class Main extends ListenerAdapter
                     String json;
                     boolean pending = false;
                     //yeah ik ik
-                    String search = WebUtil.urlenc(msgRaw.replace(".quote ", "").replace("search ", "")).trim();
+                    String search = msgRaw.replace(".quote ", "").replace("search ", "").trim();
                     if(command[2].equalsIgnoreCase("pending")){
                         if(command.length == 3){
                             MessageFactory.createStandardMessage(member, "Wait whut :robloxhead:")
@@ -68,21 +64,26 @@ public class Main extends ListenerAdapter
                         }
                         //Don't worry i'm going to chemotherapy after this code
                         search = search.replace("pending", "").replace("pending ", "").trim();
-                        json = WebUtil.getApi(member, channel, "https://api.darkeyedragon.me/quotes/getQuote.php?search="+search+"&filter=pending");
+                        json = WebUtil.getApi(member, channel, "https://api.darkeyedragon.me/quotes/getQuote.php?search="+WebUtil.urlenc(search)+"&filter=pending");
                         pending = true;
                     }
                     else {
-                        json = WebUtil.getApi(member, channel, "https://api.darkeyedragon.me/quotes/getQuote.php?search="+search);
+                        json = WebUtil.getApi(member, channel, "https://api.darkeyedragon.me/quotes/getQuote.php?search="+WebUtil.urlenc(search));
                     }
-                    System.out.println(search);
                     if(json==null) return;
+                    if (json.contains("No quotes")){
+                        MessageFactory.createStandardMessage(member, ":oof: nothing found")
+                                .setDescription("No search results"+(pending?" in pending quotes.":"."))
+                                .queue(channel);
+                        return;
+                    }
                     JSONArray response = new JSONArray(json);
                     StringBuilder quotes = new StringBuilder();
                     for (int i = 0; i < response.length(); i++){
                         JSONObject object = response.getJSONObject(i);
                         quotes.append("`"+object.getInt("id")+"`. `\""+object.getString("quote")+"\"` - "+object.getString("user_id")+"\n");
                     }
-                    MessageFactory.createStandardMessage(member, "Quote search results"+(pending?" (Pending)":" (Accepted)"))
+                    MessageFactory.createStandardMessage(member, "Quote search results"+(pending?" (Pending)":""))
                             .setDescription(quotes.toString())
                             .queue(channel);
 
@@ -156,4 +157,6 @@ public class Main extends ListenerAdapter
             }
         }
     }
+    //Here used to be an event listener that would change the color of the self role to yellow
+    //but i'm stupid and java is a bitch.
 }
