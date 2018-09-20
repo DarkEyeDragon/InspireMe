@@ -1,15 +1,17 @@
 package me.misterfix;
 
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.exceptions.PermissionException;
-
 import java.awt.*;
 import java.time.OffsetDateTime;
 import java.util.function.Consumer;
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.MessageEmbed;
+import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.core.exceptions.PermissionException;
 
 public class MessageFactory {
-
     private Message message;
 
     private EmbedBuilder builder;
@@ -121,7 +123,7 @@ public class MessageFactory {
     }
 
     public MessageFactory addReaction(String reaction) {
-        if(message == null) {
+        if (message == null) {
             throw new NullPointerException("Message must not be null!");
         }
         message.addReaction(reaction).queue();
@@ -150,43 +152,48 @@ public class MessageFactory {
     public static MessageFactory create() {
         return new MessageFactory();
     }
+
     public static MessageFactory create(String s) {
         return new MessageFactory(s);
     }
 
-    public static void sendPlainMessage(String s, TextChannel c){
-        if(c.canTalk()) {
+    public static void sendPlainMessage(String s, TextChannel c) {
+        if (c.canTalk()) {
             c.sendMessage(s).queue();
         } else {
-            System.out.println("No permission to speak in "+c.getName()+" channel on "+c.getGuild().getName()+" guild.");
+            System.out.println("No permission to speak in " + c.getName() + " channel on " + c.getGuild().getName() + " guild.");
         }
     }
-    public static MessageFactory createStandardMessage(Member member){
+
+    public static MessageFactory createStandardMessage(Member member) {
         return create()
-                .footer("Requested by "+member.getEffectiveName()+"#"+member.getUser().getDiscriminator(), member.getUser().getEffectiveAvatarUrl())
-                .setTimestamp()
-                .setColor(member.getColor());
+            .footer("Requested by " + member.getEffectiveName() + "#" + member.getUser().getDiscriminator(), member.getUser().getEffectiveAvatarUrl())
+            .setTimestamp()
+            .setColor(member.getColor());
     }
-    public static MessageFactory createStandardMessage(Member member, String title){
+
+    public static MessageFactory createStandardMessage(Member member, String title) {
         return create()
-                .setTitle(title)
-                .footer("Requested by "+member.getEffectiveName()+"#"+member.getUser().getDiscriminator(), member.getUser().getEffectiveAvatarUrl())
-                .setTimestamp()
-                .setColor(member.getColor());
+            .setTitle(title)
+            .footer("Requested by " + member.getEffectiveName() + "#" + member.getUser().getDiscriminator(), member.getUser().getEffectiveAvatarUrl())
+            .setTimestamp()
+            .setColor(member.getColor());
     }
-    public static void createStandardMessage(Member member, TextChannel channel){
+
+    public static void createStandardMessage(Member member, TextChannel channel) {
         create()
-                .footer("Requested by "+member.getEffectiveName()+"#"+member.getUser().getDiscriminator(), member.getUser().getEffectiveAvatarUrl())
-                .setTimestamp()
-                .setColor(member.getColor())
-                .queue(channel);
+            .footer("Requested by " + member.getEffectiveName() + "#" + member.getUser().getDiscriminator(), member.getUser().getEffectiveAvatarUrl())
+            .setTimestamp()
+            .setColor(member.getColor())
+            .queue(channel);
     }
-    public static void createStandardMessage(Member member, String title, TextChannel channel){
+
+    public static void createStandardMessage(Member member, String title, TextChannel channel) {
         create()
-                .setTitle(title)
-                .footer("Requested by "+member.getEffectiveName()+"#"+member.getUser().getDiscriminator(), member.getUser().getEffectiveAvatarUrl())
-                .setTimestamp()
-                .setColor(member.getColor())
-                .queue(channel);
+            .setTitle(title)
+            .footer("Requested by " + member.getEffectiveName() + "#" + member.getUser().getDiscriminator(), member.getUser().getEffectiveAvatarUrl())
+            .setTimestamp()
+            .setColor(member.getColor())
+            .queue(channel);
     }
 }
