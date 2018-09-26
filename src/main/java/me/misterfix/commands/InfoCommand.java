@@ -16,7 +16,7 @@ public class InfoCommand extends Command {
         TextChannel channel = event.getTextChannel();
         MessageFactory.createStandardMessage(member, "InspireMe: info")
             .setDescription("Follow the development of this garbage at https://github.com/MuteVision/InspireMe\n" +
-                "i dunno what else to put here.")
+                "I dunno what else to put here.")
             .queue(channel);
     }
 }

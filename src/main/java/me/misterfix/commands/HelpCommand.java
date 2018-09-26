@@ -19,7 +19,7 @@ public class HelpCommand extends Command {
                 .setDescription("`.quote` - Get a random quote.\n" +
                     "`.quote <id>` - Get a quote by its ID.\n" +
                     "`.submit <text>` - Submit a quote for review.\n" +
-                    "`.quote search <author>` - Search quotes by author name (name must not be exact)\n" +
+                    "`.quote search <author>` - Search quotes by author name (name doesn't have to be exact)\n" +
                     "`.quote search pending <author>` - Search pending quotes by author\n" +
                     "`quotes` - List all available quotes\n" +
                     "`.quotes pending` - List all pending quotes\n" +

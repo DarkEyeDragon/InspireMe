@@ -1,8 +1,5 @@
 package me.misterfix.commands;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import me.misterfix.Main;
 import me.misterfix.MessageFactory;
 import me.misterfix.WebUtil;
@@ -10,6 +7,10 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 public class SubmitCommand extends Command {
     public SubmitCommand() {
@@ -24,7 +25,7 @@ public class SubmitCommand extends Command {
         if (args.length > 1) {
             if (msgRaw.replaceFirst(".submit ", "").length() > 250) {
                 MessageFactory.createStandardMessage(member, "U w0t m8")
-                    .setDescription("Why are you trying to write an essay? a quote shouldn't be longer than 250 characters.")
+                    .setDescription("Why are you trying to write an essay? A quote shouldn't be longer than 250 characters.")
                     .queue(channel);
                 return;
             }
