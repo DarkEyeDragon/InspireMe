@@ -22,18 +22,19 @@ public class QuotesCommand extends Command {
             boolean pending = false;
             if (args.length == 2) {
                 if (args[1].equalsIgnoreCase("pending")) {
-                    json = WebUtil.getApi(member, channel, "https://api.darkeyedragon.me/quotes/getAll.php?filter=pending");
+                    json = WebUtil.getQuoteAPi(member, channel, "getAll.php?filter=pending");
                     pending = true;
                 }
             } else {
-                json = WebUtil.getApi(member, channel, "https://api.darkeyedragon.me/quotes/getAll.php?filter=accepted");
+                json = WebUtil.getQuoteAPi(member, channel, "getAll.php?filter=accepted");
             }
             if (json == null) return;
             JSONArray response = new JSONArray(json);
             StringBuilder quotes = new StringBuilder();
             for (int i = 0; i < response.length(); i++) {
                 JSONObject object = response.getJSONObject(i);
-                quotes.append("`" + object.getInt("id") + "`. `\"" + object.getString("quote") + "\"` - " + object.getString("user_id") + "\n");
+                quotes.append("`").append(object.getInt("id")).append("`. `\"").append(object.getString("quote"))
+                        .append("\"` - ").append(object.getString("user_id")).append("\n");
             }
             MessageFactory.createStandardMessage(member, "Codevision quotes" + (pending ? " (Pending)" : " (Accepted)"))
                 .setDescription(quotes.toString())

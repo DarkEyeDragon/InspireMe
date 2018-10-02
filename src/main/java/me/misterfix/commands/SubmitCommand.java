@@ -23,7 +23,8 @@ public class SubmitCommand extends Command {
         Member member = event.getMember();
         TextChannel channel = event.getTextChannel();
         if (args.length > 1) {
-            if (msgRaw.replaceFirst(".submit ", "").length() > 250) {
+        	msgRaw = msgRaw.substring(".submit ".length());
+            if (msgRaw.length() > 250) {
                 MessageFactory.createStandardMessage(member, "U w0t m8")
                     .setDescription("Why are you trying to write an essay? A quote shouldn't be longer than 250 characters.")
                     .queue(channel);
@@ -32,8 +33,8 @@ public class SubmitCommand extends Command {
             String name;
             try {
                 name = URLEncoder.encode(member.getUser().getName() + "#" + member.getUser().getDiscriminator(), StandardCharsets.UTF_8.displayName());
-                String quote = URLEncoder.encode(msgRaw.replaceFirst(".submit ", ""), StandardCharsets.UTF_8.displayName());
-                String json = WebUtil.getApi(member, channel, "https://api.darkeyedragon.me/quotes/submit.php?user_id=" + name + "&quote=" + quote + "&responseType=json");
+                String quote = URLEncoder.encode(msgRaw, StandardCharsets.UTF_8.displayName());
+                String json = WebUtil.getQuoteAPi(member, channel, "submit.php?user_id=" + name + "&quote=" + quote + "&responseType=json");
                 if (json == null) return;
                 JSONObject response = new JSONObject(json);
                 if (response.getInt("response") == 200) {
