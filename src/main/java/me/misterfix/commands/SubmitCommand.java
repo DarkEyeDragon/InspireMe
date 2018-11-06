@@ -2,6 +2,7 @@ package me.misterfix.commands;
 
 import me.misterfix.Main;
 import me.misterfix.MessageFactory;
+import me.misterfix.PatternMatcher;
 import me.misterfix.WebUtil;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -33,6 +34,10 @@ public class SubmitCommand extends Command {
             try {
                 name = URLEncoder.encode(member.getUser().getName() + "#" + member.getUser().getDiscriminator(), StandardCharsets.UTF_8.displayName());
                 String quote = URLEncoder.encode(msgRaw.replaceFirst(".submit ", ""), StandardCharsets.UTF_8.displayName());
+
+                if(PatternMatcher.isMatchUser(quote)){
+                    name = URLEncoder.encode(PatternMatcher.getMatchUser(quote), StandardCharsets.UTF_8.displayName());
+                }
                 String json = WebUtil.getApi(member, channel, "https://api.darkeyedragon.me/quotes/submit.php?user_id=" + name + "&quote=" + quote + "&responseType=json");
                 if (json == null) return;
                 JSONObject response = new JSONObject(json);
