@@ -19,7 +19,7 @@ public class QuoteCommand extends Command {
         Member member = event.getMember();
         TextChannel channel = event.getTextChannel();
         if (args.length == 1) {
-            String json = WebUtil.getApi(member, channel, "https://api.darkeyedragon.me/quotes/getQuote.php");
+            String json = WebUtil.getQuoteAPi(member, channel, "getQuote.php");
             if (json == null) return;
             JSONObject jsonObject = new JSONObject(json);
             MessageFactory.createStandardMessage(member, jsonObject.getString("user_id") + " once said")
@@ -27,7 +27,7 @@ public class QuoteCommand extends Command {
                 .queue(channel);
         } else if (args.length == 2) {
             if (!args[1].equalsIgnoreCase("search")) {
-                String json = WebUtil.getApi(member, channel, "https://api.darkeyedragon.me/quotes/getQuote.php?id=" + args[1]);
+                String json = WebUtil.getQuoteAPi(member, channel, "getQuote.php?id=" + args[1]);
                 if (json == null) return;
                 JSONObject jsonObject = new JSONObject(json);
                 MessageFactory.createStandardMessage(member, jsonObject.getString("user_id") + " once said")
@@ -43,7 +43,7 @@ public class QuoteCommand extends Command {
                 String json;
                 boolean pending = false;
                 //yeah ik ik
-                String search = event.getMessage().getContentRaw().replace(".quote ", "").replace("search ", "").trim();
+                String search = event.getMessage().getContentRaw().substring(".submit ".length()).replace("search ", "").trim();
                 if (args[2].equalsIgnoreCase("pending")) {
                     if (args.length == 3) {
                         MessageFactory.createStandardMessage(member, "Wait whut " + Main.getEmote("robloxhead"))
@@ -52,10 +52,10 @@ public class QuoteCommand extends Command {
                     }
                     //Don't worry i'm going to chemotherapy after this code
                     search = search.replace("pending", "").replace("pending ", "").trim();
-                    json = WebUtil.getApi(member, channel, "https://api.darkeyedragon.me/quotes/getQuote.php?search=" + WebUtil.urlenc(search) + "&filter=pending");
+                    json = WebUtil.getQuoteAPi(member, channel, "getQuote.php?filter=pending&search=" + WebUtil.urlenc(search));
                     pending = true;
                 } else {
-                    json = WebUtil.getApi(member, channel, "https://api.darkeyedragon.me/quotes/getQuote.php?search=" + WebUtil.urlenc(search));
+                    json = WebUtil.getQuoteAPi(member, channel, "getQuote.php?search=" + WebUtil.urlenc(search));
                 }
                 if (json == null) return;
                 if (json.contains("No quotes")) {
@@ -68,7 +68,8 @@ public class QuoteCommand extends Command {
                 StringBuilder quotes = new StringBuilder();
                 for (int i = 0; i < response.length(); i++) {
                     JSONObject object = response.getJSONObject(i);
-                    quotes.append("`" + object.getInt("id") + "`. `\"" + object.getString("quote") + "\"` - " + object.getString("user_id") + "\n");
+                    quotes.append("`").append(object.getInt("id")).append("`. `\"").append(object.getString("quote"))
+                            .append("\"` - ").append(object.getString("user_id")).append("\n");
                 }
                 MessageFactory.createStandardMessage(member, "Quote search results" + (pending ? " (Pending)" : ""))
                     .setDescription(quotes.toString())

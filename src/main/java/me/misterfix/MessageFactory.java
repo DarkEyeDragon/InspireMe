@@ -1,31 +1,24 @@
 package me.misterfix;
 
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.core.exceptions.PermissionException;
+
 import java.awt.*;
 import java.time.OffsetDateTime;
 import java.util.function.Consumer;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.MessageEmbed;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.exceptions.PermissionException;
 
 public class MessageFactory {
     private Message message;
 
-    private EmbedBuilder builder;
-    private int selfDestruct;
+    private final EmbedBuilder builder = new EmbedBuilder();
+    private int selfDestruct = 0; //TODO never read - probable bug?
 
     public MessageFactory(String description) {
-        this();
         setDescription(description);
     }
 
-    public MessageFactory() {
-        this.builder = new EmbedBuilder();
-        selfDestruct = 0;
-    }
+    public MessageFactory() { }
 
     public MessageFactory setTitle(String title, String url) {
         builder.setTitle(title, url);
@@ -79,9 +72,7 @@ public class MessageFactory {
 
     public MessageFactory queue(TextChannel channel, Consumer<Message> success) {
         try {
-            success.andThen(successMessage -> {
-                this.message = successMessage;
-            });
+            success.andThen(successMessage -> this.message = successMessage);
             channel.sendMessage(builder.build()).queue(success);
         } catch (PermissionException ex) {
             System.out.println("I do not have permission: " + ex.getPermission().getName() + " on server " + channel.getGuild().getName() + " in channel: " + channel.getName());
@@ -89,13 +80,12 @@ public class MessageFactory {
         return this;
     }
 
-    public MessageFactory queue(TextChannel channel) {
+    public void queue(TextChannel channel) {
         try {
             channel.sendMessage(builder.build()).queue(successMessage -> this.message = successMessage);
         } catch (PermissionException ex) {
             System.out.println("I do not have permission: " + ex.getPermission().getName() + " on server " + channel.getGuild().getName() + " in channel: " + channel.getName());
         }
-        return this;
     }
 
     public Message complete(TextChannel channel) {
@@ -113,8 +103,8 @@ public class MessageFactory {
     }
 
     public void send(User member, Consumer<Message> success) {
-        success.andThen(message -> this.message = message);
-        member.openPrivateChannel().queue(s -> s.sendMessage(builder.build()).queue(success));
+        success.andThen(msg -> this.message = msg);
+        member.openPrivateChannel().queue(channel -> channel.sendMessage(builder.build()).queue(success));
     }
 
     public MessageFactory sendUser(User member) {
@@ -153,15 +143,15 @@ public class MessageFactory {
         return new MessageFactory();
     }
 
-    public static MessageFactory create(String s) {
-        return new MessageFactory(s);
+    public static MessageFactory create(String description) {
+        return new MessageFactory(description);
     }
 
-    public static void sendPlainMessage(String s, TextChannel c) {
-        if (c.canTalk()) {
-            c.sendMessage(s).queue();
+    public static void sendPlainMessage(String message, TextChannel channel) {
+        if (channel.canTalk()) {
+            channel.sendMessage(message).queue();
         } else {
-            System.out.println("No permission to speak in " + c.getName() + " channel on " + c.getGuild().getName() + " guild.");
+            System.out.println("No permission to speak in " + channel.getName() + " channel on " + channel.getGuild().getName() + " guild.");
         }
     }
 

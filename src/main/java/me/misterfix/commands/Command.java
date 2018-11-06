@@ -6,7 +6,7 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 public abstract class Command extends ListenerAdapter {
     private final String trigger;
 
-    public Command(String trigger) {
+    protected Command(String trigger) {
         this.trigger = trigger;
     }
 
