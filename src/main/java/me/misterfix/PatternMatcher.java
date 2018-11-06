@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 public class PatternMatcher {
 
-    private static final String matchUserString = "-[\\\\s]*@[^ ]+$";
+    private static final String matchUserString = "(?<=\\\\s)-[\\\\s]*@[^\\\\s]+$";
     private static final Pattern matchUserPattern = Pattern.compile(matchUserString);
 
 
